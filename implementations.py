@@ -113,6 +113,9 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss: corresponding loss value 
     """
     w = initial_w
+    sigmoid = 1 / (1 + np.exp(-tx.dot(w)))
+    loss = -np.mean(y * np.log(sigmoid) + (1 - y) * np.log(1 - sigmoid))
+
     for iter in range(max_iters):
         # Calculate the sigmoid function
         sigmoid = 1 / (1 + np.exp(-tx.dot(w)))
