@@ -1,4 +1,5 @@
 import numpy as np 
+import helpers as hp
 
 def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     """Linear regression using gradient descent
@@ -12,32 +13,50 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         w: last weight
         loss: corresponding loss value 
     """
+
+    # Define parameters to store w and loss
     w = initial_w
+    for n_iter in range(max_iters):
+        grad, e = hp.compute_gradient(y, tx, w)
+        loss = hp.compute_mse(e)
+        w = w - gamma * grad
 
-    for iter in range(max_iters):
-        # Calculate the gradient of the mean squared error loss function
-        gradient = -1 / len(y) * tx.T.dot(y - tx.dot(w))
-
-        # Update the weight vector using the gradient and the step size (gamma)
-        w -= gamma * gradient
-
-        # Calculate the mean squared error loss
-        loss = np.mean((y - tx.dot(w))**2)
-
-    return w, loss
+    # store w and loss
+    return loss, w
 
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
-    """Linear regression using stochastic gradient descent
-    Args: 
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features.
-        initial_w: initial weight vector
-        max_iters: int, number of steps to run
-        gamma: step-size
+   
+    """The Stochastic Gradient Descent algorithm (SGD).
+    Args:
+    y: numpy array of shape=(N, )
+    tx: numpy array of shape=(N,2)
+    initial_w: numpy array of shape=(2, ). The initial guess (or the initialization) for the model parameters
+    max_iters: a scalar denoting the total number of iterations of SGD
+    gamma: a scalar denoting the stepsize
+
     Returns:
-        w: last weight
-        loss: corresponding loss value 
+    loss: last  loss value (scalar) for each iteration of SGD
+    ws: a list of length max_iters containing the model parameters as numpy arrays of shape (2, ), for each iteration of SGD
     """
+
+    # Define parameters to store w and loss
+    
+    w = initial_w
+
+    for n_iter in range(max_iters):
+
+        for y_batch, tx_batch in hp.batch_iter(y, tx, batch_size=1, num_batches=1):
+
+            # compute a stochastic gradient and loss
+            grad, _ = hp.compute_stoch_gradient(y_batch, tx_batch, w)
+            # update w through the stochastic gradient update
+            w = w - gamma * grad
+            # calculate loss
+            loss = hp.compute_mse(y, tx, w)
+
+
+    return loss, w
+
 
 def least_squares(y, tx):
     """Least squares regression using normal equations
