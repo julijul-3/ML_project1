@@ -101,7 +101,7 @@ def ridge_regression(y, tx, lambda_):
     return w, loss
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
-     """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
+    """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
     Args: 
         y: numpy array of shape (N,), N is the number of samples. All values between 0 -1
         tx: numpy array of shape (N,D), D is the number of features.
@@ -112,6 +112,21 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         w: last weight
         loss: corresponding loss value 
     """
+    w = initial_w
+    for iter in range(max_iters):
+        # Calculate the sigmoid function
+        sigmoid = 1 / (1 + np.exp(-tx.dot(w)))
+
+        # Calculate the gradient of the logistic loss function
+        gradient = tx.T.dot(sigmoid - y)
+
+        # Update the weight vector using the gradient and the step size (gamma)
+        w -= gamma * gradient
+
+        # Calculate the logistic loss
+        loss = -np.mean(y * np.log(sigmoid) + (1 - y) * np.log(1 - sigmoid))
+
+    return w, loss
      
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥^2)
