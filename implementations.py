@@ -96,7 +96,9 @@ def ridge_regression(y, tx, lambda_):
     aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
     a = tx.T.dot(tx) + aI
     b = tx.T.dot(y)
-    return np.linalg.solve(a, b)
+    w = np.linalg.solve(a, b)
+    loss = hp.compute_loss(y, tx, w)
+    return w, loss
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
      """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
