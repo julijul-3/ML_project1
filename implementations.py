@@ -52,7 +52,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
             # update w through the stochastic gradient update
             w = w - gamma * grad
             # calculate loss
-            loss = hp.compute_mse(y, tx, w)
+            loss = hp.compute_loss(y, tx, w)
 
 
     return loss, w
