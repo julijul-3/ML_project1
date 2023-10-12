@@ -73,7 +73,7 @@ def least_squares(y, tx):
     a = tx.T.dot(tx)
     b = tx.T.dot(y)
     w = np.linalg.solve(a, b)
-    mse = hp.compute_mse(y, tx, w)
+    mse = hp.compute_loss(y, tx, w)
     return w, mse
 
 def ridge_regression(y, tx, lambda_):
