@@ -57,27 +57,42 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
     return loss, w
 
-
 def least_squares(y, tx):
-    """Least squares regression using normal equations
-    Args: 
+    """Calculate the least squares solution.
+       returns mse, and optimal weights.
+
+    Args:
         y: numpy array of shape (N,), N is the number of samples.
         tx: numpy array of shape (N,D), D is the number of features.
+
     Returns:
-        w: last weight
-        loss: corresponding loss value 
+        w: optimal weights, numpy array of shape(D,), D is the number of features.
+        mse: scalar.
+
     """
+    a = tx.T.dot(tx)
+    b = tx.T.dot(y)
+    w = np.linalg.solve(a, b)
+    mse = hp.compute_mse(y, tx, w)
+    return w, mse
 
 def ridge_regression(y, tx, lambda_):
-    """Ridge regression using normal equations
-    Args: 
+    """implement ridge regression.
+
+    Args:
         y: numpy array of shape (N,), N is the number of samples.
         tx: numpy array of shape (N,D), D is the number of features.
-        lambda_: regulization parameter
+        lambda_: scalar.
+
     Returns:
-        w: last weight
-        loss: corresponding loss value without penalty term
+        w: optimal weights, numpy array of shape(D,), D is the number of features.
+
     """
+   
+    aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
+    a = tx.T.dot(tx) + aI
+    b = tx.T.dot(y)
+    return np.linalg.solve(a, b)
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
      """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
