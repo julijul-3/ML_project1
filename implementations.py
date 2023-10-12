@@ -45,6 +45,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     # Define parameters to store w and loss
     
     w = initial_w
+    loss = hp.compute_loss(y, tx, w)
 
     for n_iter in range(max_iters):
 
@@ -58,7 +59,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
             loss = hp.compute_loss(y, tx, w)
 
 
-    return loss, w
+    return w, loss
 
 def least_squares(y, tx):
     """Calculate the least squares solution.
