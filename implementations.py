@@ -18,9 +18,9 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     w = initial_w
     loss = hp.compute_loss(y, tx, w)
     for n_iter in range(max_iters):
+        w = w - gamma * grad
         grad, e = hp.compute_gradient(y, tx, w)
         loss = hp.compute_mse(e)
-        w = w - gamma * grad
 
     # store w and loss
     return w, loss
