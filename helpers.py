@@ -88,7 +88,8 @@ def load_csv_data(data_path, sub_sample=False):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
     y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
     x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
-    ids = x[:, 0].astype(np.int)
+    # ids = x[:, 0].astype(np.int)
+    ids = range(len(x))
     input_data = x[:, 2:]
 
     # convert class labels from strings to binary (-1,1)
@@ -102,6 +103,14 @@ def load_csv_data(data_path, sub_sample=False):
         ids = ids[::50]
 
     return yb, input_data, ids
+
+def load_csv(data_path_x, data_path_y):
+    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
+    y = np.genfromtxt(data_path_y, delimiter=",", skip_header=1, dtype=int)
+    x = np.genfromtxt(data_path_x, delimiter=",", skip_header=1)
+    ids = range(len(x))
+
+    return x, y, ids
 
 
 def create_csv_submission(ids, y_pred, name):
