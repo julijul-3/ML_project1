@@ -107,9 +107,10 @@ def load_csv_data(data_path, sub_sample=False):
 def load_csv(data_path_x, data_path_y):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
     y = np.genfromtxt(data_path_y, delimiter=",", skip_header=1, dtype=int)
-    x = np.genfromtxt(data_path_x, delimiter=",", skip_header=1)
+    x_labels = np.genfromtxt(data_path_x, delimiter=",")
+    x = x_labels[1:]
+    labels = x_labels[0]
     ids = range(len(x))
-    labels = np.genfromtxt(data_path_x, delimiter=",", dtype = str, skip_footer=len(x)-1)
 
     return x, y, ids, labels
 
