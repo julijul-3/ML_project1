@@ -109,8 +109,9 @@ def load_csv(data_path_x, data_path_y):
     y = np.genfromtxt(data_path_y, delimiter=",", skip_header=1, dtype=int)
     x = np.genfromtxt(data_path_x, delimiter=",", skip_header=1)
     ids = range(len(x))
+    labels = np.genfromtxt(data_path_x, delimiter=",", dtype = str, skip_footer=len(x)-1)
 
-    return x, y, ids
+    return x, y, ids, labels
 
 
 def create_csv_submission(ids, y_pred, name):
