@@ -119,15 +119,14 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     gradient = tx.T.dot(sigmoid - y)
 
     for iter in range(max_iters):
+        # Update the weight vector using the gradient and the step size (gamma)
+
         w -= gamma * gradient
         # Calculate the sigmoid function
         sigmoid = 1 / (1 + np.exp(-tx.dot(w)))
 
         # Calculate the gradient of the logistic loss function
         gradient = tx.T.dot(sigmoid - y)
-
-        # Update the weight vector using the gradient and the step size (gamma)
-        
 
         # Calculate the logistic loss
         loss = -np.mean(y * np.log(sigmoid) + (1 - y) * np.log(1 - sigmoid))
