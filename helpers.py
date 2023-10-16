@@ -109,7 +109,7 @@ def load_csv(data_path_x, data_path_y):
     y = np.genfromtxt(data_path_y, delimiter=",", skip_header=1, dtype=int)
     x_labels = np.genfromtxt(data_path_x, delimiter=",")
     x = x_labels[1:]
-    labels = x_labels[0]
+    labels = str(x_labels[0])
     ids = range(len(x))
 
     return x, y, ids, labels
