@@ -100,6 +100,7 @@ def ridge_regression(y, tx, lambda_):
     loss = hp.compute_loss(y, tx, w)
     return w, loss
 
+### Check le texte en vert 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
     Args: 
@@ -114,24 +115,16 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """
     # compute inital step
     w = initial_w
-    sigmoid = 1 / (1 + np.exp(-tx.dot(w)))
-    loss = -np.mean(y * np.log(sigmoid) + (1 - y) * np.log(1 - sigmoid))
-    gradient = tx.T.dot(sigmoid - y)
+    loss = hp.calculate_loss(y, tx, w)
 
     for iter in range(max_iters):
         # Update the weight vector using the gradient and the step size (gamma)
-
-        w -= gamma * gradient
-        # Calculate the sigmoid function
-        sigmoid = 1 / (1 + np.exp(-tx.dot(w)))
-
-        # Calculate the gradient of the logistic loss function
-        gradient = tx.T.dot(sigmoid - y)
-
-        # Calculate the logistic loss
-        loss = -np.mean(y * np.log(sigmoid) + (1 - y) * np.log(1 - sigmoid))
+        loss = hp.calculate_loss(y, tx, w)
+        grad = hp.calculate_gradient(y, tx, w)
+        w -= gamma * grad
 
     return w, loss
+   
      
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥^2)
