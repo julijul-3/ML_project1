@@ -124,8 +124,8 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         w -= gamma * grad
 
     return w, loss
-   
-     
+
+### possiblement pas mettre dans la loss la penalite mais la mettre dans le gradient descent 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥^2)
     Args: 
