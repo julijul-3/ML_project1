@@ -123,7 +123,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         grad = hp.calculate_gradient(y, tx, w)
         w -= gamma * grad
 
-    return w, loss
+    return w, np.array(loss)
 
 ### possiblement pas mettre dans la loss la penalite mais la mettre dans le gradient descent 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
