@@ -354,50 +354,50 @@ def BMI_clean(bmi_data):
     return bmi_data
 
 
-def replace_nan_and_exception_with_mean(data, exception_value):
-    # Create a mask to identify exception values
-    mask = (data != exception_value)
+def replace_nan_and_exception_with_mean(data, exception_values):
     
-    # Calculate the mean of non-(-1) values
-    mean_value = np.mean(data[mask])
-    
-    # Calculate the mean of non-NaN values
-    mean_value_nan = np.nanmean(data)
+    # clean data for mean: filter all exceptions and negatives
+    cleaned_data = filter(lambda x: x not in exception_values, data)
+    cleaned_data = filter(lambda x: x>0, cleaned_data)
+    # Calculate the mean of non-nan values
+    mean_value = np.nanmean(cleaned_data)
 
-    # Check for NaN values and print a message
-    if np.isnan(data).any():
-        print("There are NaN values")
+    condition = np.isnan(data) or np.less(data, 0) or np.isin(data, exception_values)
 
-    # Replace NaN values with the mean
-    data[np.isnan(data)] = mean_value_nan
-    
-    # Replace -1 values with the mean
-    data[~mask] = mean_value
+    # Replace bad values with the mean
+    data[condition] = mean_value
     
     return data
 
-def replace_nan_and_exception_with_majority(data, exception):
+def replace_nan_and_exception_with_majority(data, exceptions):
 
-    # Exclude -1 , exception value and NaN values when counting occurrences
-    valid_values = data[~np.isnan(data) & (data != exception)& (data != -1)]
+    # Exclude negative , exception values and NaN values when counting occurrences
+    valid_values = data[~np.isnan(data) & (data not in exceptions)& (data >= 0)]
     value_counts = np.bincount(valid_values.astype(int))
 
     # Find the majority value
     majority_value = np.argmax(value_counts)
 
     # Replace exception & NaN with the majority value
-    data[np.isnan(data)] = majority_value
-    data[data == exception] = majority_value
-    data[data == -1] = majority_value
+    condition = np.isnan(data) or np.less(data, 0) or np.isin(data, exceptions)
+    data[condition] = majority_value
+
     return data
 
-def data_clean(data, exception):
+def data_clean(inputs):
+    """
+    inputs = (data, exceptions, with_majority)
+    data:  data to clean
+    exceptions:  values to remplace
+    with_majority : (Bool) if True, remplace with majority, if false, remplace with mean
+    """
 
-    if (exception == 9):
-        data = replace_nan_and_exception_with_majority(data,exception)
-
-    if((exception == -1) or (exception == 99900)):
-        data = replace_nan_and_exception_with_mean(data,exception)
+    data, exceptions, with_majority = inputs
+    
+    if (with_majority):
+        data = replace_nan_and_exception_with_majority(data,exceptions)
+    else:
+        data = replace_nan_and_exception_with_mean(data,exceptions)
 
     return data
 
