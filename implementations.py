@@ -100,7 +100,7 @@ def ridge_regression(y, tx, lambda_):
     loss = hp.compute_loss(y, tx, w)
     return w, loss
 
-### LOGITIC REG ###
+### LOGISTIC REG ###
 
 
 ### Check le texte en vert 
@@ -155,7 +155,6 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         loss, gradient, w = hp.gradient_descent_step(y, tx, w, gamma, lambda_, mode='logistic')
         
         # converge criterion
-        # print("Current iteration={i}, loss={l}, ||d|| = {d}".format(i=iter, l=loss, d=np.linalg.norm(gradient)))
         if iteration > 1 and np.abs(loss - previous_loss) < threshold:
             break
 
