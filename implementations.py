@@ -102,83 +102,33 @@ def ridge_regression(y, tx, lambda_):
 
 ### LOGISTIC REG ###
 
-def sigmoid(t):
-    """
-    The sigmoid function modified to be numerically stable
 
-    Parameters:
-    t (array-like): the input of the sigmoid function
 
-    Returns:
-    Array-like: the array formed by applying the sigmoid function
-    """
-    sigs = np.zeros(len(t))
-    sigs[np.where(t >= 0)] = 1 / (1 + np.exp(-t[t >= 0]))
-    sigs[np.where(t < 0)] = np.exp(t[t < 0]) / (1 + np.exp(t[t < 0]))
-    return sigs
 
-# Found here: https://stackoverflow.com/questions/3985619/how-to-calculate-a-logistic-sigmoid-function-in-python
-# def sigmoid(x):  
-#     return np.exp(-np.logaddexp(0, -x))
-
-def negative_log_likelihood(y, tx, w):
-    """
-    Calculates the negative log likelihood
-
-    Parameters:     
-    y (array-like): the labels
-    tx (array-like): the data points
-    w (array-like): the weights
-    
-    Returns:
-    Array-like: the negative log likelihood
-    """
-    sigs = sigmoid(tx@w)
-    loss = y.T@np.log(sigs, where=sigs > 1e-50) + (1 - y).T@np.log(1 - sigs, where=1-sigs > 1e-50)
-    return -loss
-
-def gradient_negative_log_likelihood(y, tx, w):
-    """
-    Calculates the gradient of negative log likelihood
-    
-    Parameters:     
-    y (array-like): the labels
-    tx (array-like): the data points
-    w (array-like): the weights
-    
-    Returns:
-    Array-like: the gradient of the negative log likelihood
-    """
-    return tx.T@(sigmoid(tx@w)-y)
-
+### Check le texte en vert 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
+    """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
+    Args: 
+        y: numpy array of shape (N,), N is the number of samples. All values between 0 -1
+        tx: numpy array of shape (N,D), D is the number of features.
+        initial_w: initial weight vector
+        max_iters: int, number of steps to run
+        gamma: step-size
+    Returns:
+        w: last weight
+        loss: corresponding loss value 
     """
-    Logistic regression using the negative log likelihood as a cost function
-
-    Parameters:
-    y (array-like): the labels
-    tx (array-like): the data points
-    initial_w (array-like): the initial weight vector
-    max_iters (int): the number of steps to run
-    gamma (float): the step-size
-
-    Returns: 
-    Array-like: the weights
-    Float: the loss/negative log likelihood
-    """
+    # compute inital step
     w = initial_w
-    loss = negative_log_likelihood(y, tx, w)
-    gradient = gradient_negative_log_likelihood(y, tx, w)
+    loss = hp.calculate_loss(y, tx, w)
 
-    for i in range(max_iters):
-        w-=gamma*gradient
-        loss = negative_log_likelihood(y, tx, w)
-        gradient = gradient_negative_log_likelihood(y, tx, w)
+    for iter in range(max_iters):
+        # Update the weight vector using the gradient and the step size (gamma)
+        loss = hp.calculate_loss(y, tx, w)
+        grad = hp.calculate_gradient(y, tx, w)
+        w -= gamma * grad
 
-    return w, loss
-
-
-
+    return w, np.array(loss)
 
 
 

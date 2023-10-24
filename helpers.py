@@ -357,30 +357,31 @@ def BMI_clean(bmi_data):
 def replace_nan_and_exception_with_mean(data, exception_values):
     
     # clean data for mean: filter all exceptions and negatives
-    cleaned_data = filter(lambda x: x not in exception_values, data)
-    cleaned_data = filter(lambda x: x>0, cleaned_data)
+    cleaned_data = data[~np.isin(data, exception_values) & (data > 0)]
+
     # Calculate the mean of non-nan values
     mean_value = np.nanmean(cleaned_data)
 
-    condition = np.isnan(data) or np.less(data, 0) or np.isin(data, exception_values)
-
     # Replace bad values with the mean
-    data[condition] = mean_value
+    data[np.isnan(data)] = mean_value
+    data[np.less(data, 0)] = mean_value
+    data[np.isin(data, exception_values)] = mean_value
     
     return data
 
 def replace_nan_and_exception_with_majority(data, exceptions):
 
     # Exclude negative , exception values and NaN values when counting occurrences
-    valid_values = data[~np.isnan(data) & (data not in exceptions)& (data >= 0)]
+    valid_values = data[~np.isnan(data) & ~np.isin(data, exceptions) & (data >= 0)]
     value_counts = np.bincount(valid_values.astype(int))
 
     # Find the majority value
     majority_value = np.argmax(value_counts)
 
     # Replace exception & NaN with the majority value
-    condition = np.isnan(data) or np.less(data, 0) or np.isin(data, exceptions)
-    data[condition] = majority_value
+    data[np.isnan(data)] = majority_value
+    data[np.less(data, 0)] = majority_value
+    data[np.isin(data, exceptions)] = majority_value
 
     return data
 
@@ -409,3 +410,26 @@ def predict_labels(weights, data):
     y_pred[np.where(y_pred > 0)] = 1
     
     return y_pred
+
+def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
+    """
+    Function to clean up the dataset while keeping only the wanted features
+    Args:
+        all_labels_list: (numpy array) every labels of the dataset, in order to find indices
+        labels_to_keep: (str, numpy array 1x.., Bool) name of label, array of exception values, use_majority
+        dataset_to_clean: (array NxD)
+    """
+    tab_train = []
+
+    for input in labels_to_keep:
+        label, exceptions, use_maj = input
+        # find index of label
+        id = np.where(all_labels_list == label)[0][0]
+        # find data of this index
+        data = dataset_to_clean[:, id]
+    
+        #clean up
+        data_cleaned = data_clean((data, exceptions, use_maj))
+        tab_train.append(data_cleaned)
+
+    return np.array(tab_train).T
