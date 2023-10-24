@@ -171,7 +171,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss = negative_log_likelihood(y, tx, w)
         gradient = gradient_negative_log_likelihood(y, tx, w)
         w-=gamma*gradient
-    return w, loss
+    return w, np.array(loss)
 
 
 
