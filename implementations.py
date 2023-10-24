@@ -167,11 +167,14 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     Float: the loss/negative log likelihood
     """
     w = initial_w
-    loss = None
+    loss = negative_log_likelihood(y, tx, w)
+    gradient = gradient_negative_log_likelihood(y, tx, w)
+
     for i in range(max_iters):
+        w-=gamma*gradient
         loss = negative_log_likelihood(y, tx, w)
         gradient = gradient_negative_log_likelihood(y, tx, w)
-        w-=gamma*gradient
+
     return w, loss
 
 
