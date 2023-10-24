@@ -1,5 +1,6 @@
 import numpy as np
 import csv
+import os
 import seaborn as sns
 import matplotlib.pyplot as plt
 
@@ -164,27 +165,102 @@ def logistic_regression(y, tx, w):
     hessian = calculate_hessian(y, tx, w)
     return loss, gradient, hessian
 
+### fonction du cours
+def build_poly(x, degree):
+
+    """polynomial basis functions for input data x, for j=0 up to j=degree.
+
+    Args:
+        x: numpy array of shape (N,), N is the number of samples.
+        degree: integer.
+
+    Returns:
+        poly: numpy array of shape (N,d+1)
+
+    >>> build_poly(np.array([0.0, 1.5]), 2)
+    array([[1.  , 0.  , 0.  ],
+           [1.  , 1.5 , 2.25]])
+    """
+    # ***************************************************
+    # INSERT YOUR CODE HERE
+    # polynomial basis function: TODO
+    # this function should return the matrix formed
+    # by applying the polynomial basis to the input data
+    # ***************************************************
+    #raise NotImplementedError
+
+    poly = np.ones((len(x), 1))
+    for deg in range(1, degree+1):
+        poly = np.c_[poly, np.power(x, deg)]
+    return poly
+
+def ridge_regression(y, tx, lambda_):
+    """implement ridge regression.
+
+    Args:
+        y: numpy array of shape (N,), N is the number of samples.
+        tx: numpy array of shape (N,D), D is the number of features.
+        lambda_: scalar.
+    Returns:
+        w: optimal weights, numpy array of shape(D,), D is the number of features.
+        loss : mse loss, float 
+
+    """
+
+    aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
+    a = tx.T.dot(tx) + aI
+    b = tx.T.dot(y)
+    w = np.linalg.solve(a, b)
+    loss = compute_loss(y,tx,w)
+    
+    return w, loss
+
 ### Load CSV
 
-def load_csv_data(data_path, sub_sample=False):
-    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-    y = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=str, usecols=1)
-    x = np.genfromtxt(data_path, delimiter=",", skip_header=1)
-    # ids = x[:, 0].astype(np.int)
-    ids = range(len(x))
-    input_data = x[:, 2:]
 
-    # convert class labels from strings to binary (-1,1)
-    yb = np.ones(len(y))
-    yb[np.where(y == "b")] = -1
+### ne fonctionne pas
+def load_csv_data(data_path, sub_sample=False):
+    """
+    This function loads the data and returns the respectinve numpy arrays.
+    Remember to put the 3 files in the same folder and to not change the names of the files.
+
+    Args:
+        data_path (str): datafolder path
+        sub_sample (bool, optional): If True the data will be subsempled. Default to False.
+
+    Returns:
+        x_train (np.array): training data
+        x_test (np.array): test data
+        y_train (np.array): labels for training data in format (-1,1)
+        train_ids (np.array): ids of training data
+        test_ids (np.array): ids of test data
+    """
+    y_train = np.genfromtxt(
+        os.path.join(data_path, "y_train.csv"),
+        delimiter=",",
+        skip_header=1,
+        dtype=int,
+        usecols=1,
+    )
+    x_train = np.genfromtxt(
+        os.path.join(data_path, "x_train.csv"), delimiter=",", skip_header=1
+    )
+    x_test = np.genfromtxt(
+        os.path.join(data_path, "x_test.csv"), delimiter=",", skip_header=1
+    )
+
+    train_ids = x_train[:, 0].astype(dtype=int)
+    test_ids = x_test[:, 0].astype(dtype=int)
+    x_train = x_train[:, 1:]
+    x_test = x_test[:, 1:]
 
     # sub-sample
     if sub_sample:
-        yb = yb[::50]
-        input_data = input_data[::50]
-        ids = ids[::50]
+        y_train = y_train[::50]
+        x_train = x_train[::50]
+        train_ids = train_ids[::50]
 
-    return y, input_data, ids
+    return x_train, x_test, y_train, train_ids, test_ids
 
 def load_csv(data_path_x, data_path_y):
     """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
@@ -205,55 +281,31 @@ def load_csv_1(data_path):
 
     return  data , ids, labels
 
-def load_data(sub_sample=True, add_outlier=False):
-    """Load data and convert it to the metric system."""
-    path_dataset = "height_weight_genders.csv"
-    data = np.genfromtxt(path_dataset, delimiter=",", skip_header=1, usecols=[1, 2])
-    height = data[:, 0]
-    weight = data[:, 1]
-    gender = np.genfromtxt(
-        path_dataset,
-        delimiter=",",
-        skip_header=1,
-        usecols=[0],
-        converters={0: lambda x: 0 if b"Male" in x else 1},
-    )
-    # Convert to metric system
-    height *= 0.025
-    weight *= 0.454
-    return height, weight, gender
+
 
 ### Create CSV
 
 def create_csv_submission(ids, y_pred, name):
     """
-    Creates an output file in .csv format for submission to Kaggle or AIcrowd
-    Arguments: ids (event ids associated with each prediction)
-               y_pred (predicted class labels)
-               name (string name of .csv output file to be created)
+    This function creates a csv file named 'name' in the format required for a submission in Kaggle or AIcrowd.
+    The file will contain two columns the first with 'ids' and the second with 'y_pred'.
+    y_pred must be a list or np.array of 1 and -1 otherwise the function will raise a ValueError.
+
+    Args:
+        ids (list,np.array): indices
+        y_pred (list,np.array): predictions on data correspondent to indices
+        name (str): name of the file to be created
     """
-    with open(name, "w") as csvfile:
+    # Check that y_pred only contains -1 and 1
+    if not all(i in [-1, 1] for i in y_pred):
+        raise ValueError("y_pred can only contain values -1, 1")
+
+    with open(name, "w", newline="") as csvfile:
         fieldnames = ["Id", "Prediction"]
         writer = csv.DictWriter(csvfile, delimiter=",", fieldnames=fieldnames)
         writer.writeheader()
         for r1, r2 in zip(ids, y_pred):
             writer.writerow({"Id": int(r1), "Prediction": int(r2)})
-
-def create_csv_1(ids, labels, data, filename):
-    """
-   
-    """
-    if len(ids) != len(data):
-        raise ValueError("Length of IDs and values should be the same")
-
-    with open(filename, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['ID', labels])  # Writing header row with custom label
-
-        for id, value in zip(ids,data):
-            writer.writerow([id, value])
-    
-    print(f"CSV file '{filename}' has been created successfully.")   
 
 def create_csv(ids, labels, data, filename):
     print(len(ids))
@@ -270,7 +322,6 @@ def create_csv(ids, labels, data, filename):
         #    writer.writerow(row)
     
     print(f"CSV file '{filename}' has been created successfully.")
-
 
 
 ### Plots
@@ -341,7 +392,7 @@ def replace_nan_and_exception_with_majority(data, exception):
     return data
 
 def data_clean(data, exception):
-    
+
     if (exception == 9):
         data = replace_nan_and_exception_with_majority(data,exception)
 
@@ -349,3 +400,12 @@ def data_clean(data, exception):
         data = replace_nan_and_exception_with_mean(data,exception)
 
     return data
+
+
+def predict_labels(weights, data):
+    """Generates class predictions given weights, and a test data matrix"""
+    y_pred = np.dot(data, weights)
+    y_pred[np.where(y_pred <= 0)] = -1
+    y_pred[np.where(y_pred > 0)] = 1
+    
+    return y_pred
