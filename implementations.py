@@ -146,13 +146,13 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     # init parameters
     threshold = 1e-8
     w = initial_w
-    loss = 0
+    loss, gradient, w = hp.calculate_gradient(y, tx, w, gamma, lambda_, mode='logistic')
 
     # start the logistic linear
     for iteration in range(max_iters):
         previous_loss = loss
         # get loss and update w.
-        loss, gradient, w = hp.gradient_descent_step(y, tx, w, gamma, lambda_, mode='logistic')
+        loss, gradient, w = hp.calculate_gradient(y, tx, w, gamma, lambda_, mode='logistic')
         
         # converge criterion
         # print("Current iteration={i}, loss={l}, ||d|| = {d}".format(i=iter, l=loss, d=np.linalg.norm(gradient)))
