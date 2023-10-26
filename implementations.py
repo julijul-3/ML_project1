@@ -119,12 +119,13 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     # compute inital step
     w = initial_w
     loss = hp.calculate_loss_logistic(y, tx, w)
+    grad = hp.calculate_gradient_logistic(y, tx, w)
 
     for iter in range(max_iters):
+        w -= gamma * grad
         # Update the weight vector using the gradient and the step size (gamma)
         loss = hp.calculate_loss_logistic(y, tx, w)
         grad = hp.calculate_gradient_logistic(y, tx, w)
-        w -= gamma * grad
 
     return w, np.array(loss)
 
