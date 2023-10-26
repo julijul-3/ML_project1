@@ -162,8 +162,10 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """
     w = initial_w
     loss = hp.calculate_loss_logistic(y, tx, w) #+ lambda_*np.sum(w**2)
+    gradient = hp.calculate_gradient_logistic(y, tx, w) + 2*lambda_*w
+
     for i in range(max_iters):
+        w-=gamma*gradient
         loss = hp.calculate_loss_logistic(y, tx, w) # + lambda_*np.sum(w**2)
         gradient = hp.calculate_gradient_logistic(y, tx, w) + 2*lambda_*w
-        w-=gamma*gradient
     return w, loss
