@@ -434,3 +434,58 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
         tab_train.append(data_cleaned)
 
     return np.array(tab_train).T
+
+
+def split_train_test(y, x, proportion):
+    """
+    Splits the train test for cross validation
+
+    Parameters:
+    y (array-like): the labels
+    x (array-like): the data points
+    proportion (float): percentage of data used for train (between 0-1)
+
+
+    Returns: 
+    Array-like: x_train, the data points used for training
+    Array_like: y_train, the labels used for training
+    Array-like: x_test, the data points used for testing
+    Array-like: y_test, the labels used for testing
+    """
+    index = int(np.ceil(len(x)*proportion))
+    if index>= len(x) :
+        print("index too large")
+    x_train = x[:index]
+    x_test = x[index:]
+    y_train = y[:index]
+    y_test = y[index:]
+    return x_train, y_train, x_test, y_test
+
+def measure_accuracy(y, y_pred):
+    """
+    Measures the accuracy of a given prediction
+
+    Parameters:
+    y (array-like): the labels 
+    y_pred (array-like): the predictions
+
+    Returns: 
+    Float: the accuracy
+    """
+    return sum(a==b for a,b in zip(y, y_pred))/len(y)
+
+def measure_f1_score(y, y_pred):
+    """
+    Measures the f1 score of a given prediction
+
+    Parameters:
+    y (array-like): the labels 
+    y_pred (array-like): the predictions
+
+    Returns: 
+    Float: f1 score
+    """
+    true_pos = sum(a==b and b==1 for a,b in zip(y,y_pred))
+    false_neg = sum(a!=b and b==-1 for a,b in zip(y,y_pred))
+    false_pos = sum(a!=b and b==1 for a,b in zip(y,y_pred))
+    return (true_pos/(true_pos+1/2 * (false_neg+false_pos)))
