@@ -23,7 +23,6 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         grad, e = hp.compute_gradient(y, tx, w)
         loss = hp.compute_mse(e)
         
-
     # store w and loss
     return w, loss
 
@@ -102,9 +101,6 @@ def ridge_regression(y, tx, lambda_):
 
 ### LOGISTIC REG ###
 
-
-
-
 ### Check le texte en vert 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
@@ -118,6 +114,11 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         w: last weight
         loss: corresponding loss value 
     """
+
+    loss = calculate_loss(y, tx, w)
+    gradient = calculate_gradient(y, tx, w)
+    hessian = calculate_hessian(y, tx, w)
+    return loss, gradient, hessian
     # compute inital step
     w = initial_w
     loss = hp.calculate_loss(y, tx, w)
@@ -163,10 +164,9 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     return w, loss
     """
     w = initial_w
-    loss = hp.calculate_loss(y, tx, w) + lambda_*np.sum(w**2)
+    loss = hp.calculate_loss(y, tx, w) #+ lambda_*np.sum(w**2)
     for i in range(max_iters):
-        loss = hp.calculate_loss(y, tx, w)
-        # + lambda_*np.sum(w**2)
+        loss = hp.calculate_loss(y, tx, w) # + lambda_*np.sum(w**2)
         gradient = hp.calculate_gradient(y, tx, w) + 2*lambda_*w
         w-=gamma*gradient
     return w, loss
