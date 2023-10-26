@@ -112,8 +112,10 @@ def calculate_loss(y, tx, w):
     assert tx.shape[1] == w.shape[0]
  
     pred = sigmoid(tx.dot(w))
-    loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
-    return np.squeeze(-loss).item() * (1 / y.shape[0])
+    loss = -np.mean(y * np.log(pred) + (1 - y) * np.log(1 - pred)) 
+    return loss
+    # loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
+    #return np.squeeze(-loss).item() * (1 / y.shape[0])
     
 def calculate_gradient(y, tx, w):
     """compute the gradient of loss.
