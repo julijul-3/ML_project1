@@ -98,7 +98,7 @@ def sigmoid(t):
 
   ### Loss for Logistic  : Sigmoïd 
 
-def calculate_loss(y, tx, w):
+def calculate_loss_logistic(y, tx, w):
     """compute the cost by negative log likelihood.
 
     Args:
@@ -118,7 +118,7 @@ def calculate_loss(y, tx, w):
     # loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
     #return np.squeeze(-loss).item() * (1 / y.shape[0])
     
-def calculate_gradient(y, tx, w):
+def calculate_gradient_logistic(y, tx, w):
     """compute the gradient of loss.
 
     Args:
@@ -149,25 +149,6 @@ def calculate_hessian(y, tx, w):
     r = np.multiply(pred, (1 - pred))
     return tx.T.dot(r).dot(tx) * (1 / y.shape[0])
 
-def logistic_regression(y, tx, w):
-    """return the loss, gradient of the loss, and hessian of the loss.
-
-    Args:
-        y:  shape=(N, 1)
-        tx: shape=(N, D)
-        w:  shape=(D, 1)
-
-    Returns:
-        loss: scalar number
-        gradient: shape=(D, 1)
-        hessian: shape=(D, D)
-    """
-   
-    loss = calculate_loss(y, tx, w)
-    gradient = calculate_gradient(y, tx, w)
-    hessian = calculate_hessian(y, tx, w)
-    return loss, gradient, hessian
-
 ### fonction du cours
 def build_poly(x, degree):
 
@@ -184,44 +165,14 @@ def build_poly(x, degree):
     array([[1.  , 0.  , 0.  ],
            [1.  , 1.5 , 2.25]])
     """
-    # ***************************************************
-    # INSERT YOUR CODE HERE
-    # polynomial basis function: 
-    # this function should return the matrix formed
-    # by applying the polynomial basis to the input data
-    # ***************************************************
-    #raise NotImplementedError
 
     poly = np.ones((len(x), 1))
     for deg in range(1, degree+1):
         poly = np.c_[poly, np.power(x, deg)]
     return poly
 
-def ridge_regression(y, tx, lambda_):
-    """implement ridge regression.
-
-    Args:
-        y: numpy array of shape (N,), N is the number of samples.
-        tx: numpy array of shape (N,D), D is the number of features.
-        lambda_: scalar.
-    Returns:
-        w: optimal weights, numpy array of shape(D,), D is the number of features.
-        loss : mse loss, float 
-
-    """
-
-    aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
-    a = tx.T.dot(tx) + aI
-    b = tx.T.dot(y)
-    w = np.linalg.solve(a, b)
-    loss = compute_loss(y,tx,w)
-    
-    return w, loss
-
 ### Load CSV
 
-
-### ne fonctionne pas
 def load_csv_data(data_path, sub_sample=False):
     """
     This function loads the data and returns the respectinve numpy arrays.
@@ -265,27 +216,6 @@ def load_csv_data(data_path, sub_sample=False):
 
     return x_train, x_test, y_train, train_ids, test_ids
 
-def load_csv(data_path_x, data_path_y):
-    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-    y = np.genfromtxt(data_path_y, delimiter=",", skip_header=1, dtype=int)
-    x_labels = np.genfromtxt(data_path_x, delimiter=",")
-    x = x_labels[1:]
-    labels = str(x_labels[0])
-    ids = range(len(x))
-
-    return x, y, ids, labels
-
-def load_csv_1(data_path):
-    """Loads data and returns y (class labels), tX (features) and ids (event ids)"""
-    data = np.genfromtxt(data_path, delimiter=",", skip_header=1, dtype=int)
-    x_labels = np.genfromtxt(data_path, delimiter=",", dtype = str)
-    labels = (x_labels[0])
-    ids = range(len(data))
-
-    return  data , ids, labels
-
-
-
 ### Create CSV
 
 def create_csv_submission(ids, y_pred, name):
@@ -310,52 +240,7 @@ def create_csv_submission(ids, y_pred, name):
         for r1, r2 in zip(ids, y_pred):
             writer.writerow({"Id": int(r1), "Prediction": int(r2)})
 
-def create_csv(ids, labels, data, filename):
-    print(len(ids))
-    print(len(data))
-    if len(ids) != len(data) or len(labels) != len(data[0]):
-        raise ValueError("Length of IDs and values should match, and the number of labels should match the number of columns in the data.")
-
-    with open(filename, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(labels)  # Writing header row with custom labels
-
-        writer.writerows(data)
-        #for j,row in zip(ids, data):
-        #    writer.writerow(row)
-    
-    print(f"CSV file '{filename}' has been created successfully.")
-
-
-### Plots
-
-def plot_scatter(data):
-    plt.figure(figsize=(8, 6))
-    plt.scatter(range(len(data)), data, alpha=0.5)
-    plt.xlabel("Data Point Index")
-    plt.ylabel("Values")
-    plt.title("Scatter Plot of Values")
-    plt.show()
-
 ### Cleaning
-
-### Would be great to parametrize missing data if its -1 or nan or else ? 
-def BMI_clean(bmi_data):
-
-   # Create a mask to identify -1 values
-    mask = (bmi_data != -1)
-
-    # Calculate the mean of non-negative values
-    mean_value = np.mean(bmi_data[mask])
-    print(mean_value)
-
-    # Replace -1 values with the mean
-    bmi_data[~mask] = mean_value
-    mean_value_2 = np.mean(bmi_data)
-    print(mean_value_2)
-
-    return bmi_data
-
 
 def replace_nan_and_exception_with_mean(data, exception_values):
     
@@ -405,16 +290,6 @@ def data_clean(inputs):
 
     return data
 
-
-def predict_labels(weights, data):
-    """Generates class predictions given weights, and a test data matrix"""
-    y_pred = np.dot(data, weights)
-    print((y_pred))
-    y_pred[np.where(y_pred <= 0)] = -1
-    y_pred[np.where(y_pred > 0)] = 1
-    
-    return y_pred
-
 def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
     """
     Function to clean up the dataset while keeping only the wanted features
@@ -438,7 +313,19 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
 
     return np.array(tab_train).T
 
+## prediction of labels
 
+def predict_labels(weights, data):
+    """Generates class predictions given weights, and a test data matrix"""
+    y_pred = np.dot(data, weights)
+    print((y_pred))
+    y_pred[np.where(y_pred <= 0)] = -1
+    y_pred[np.where(y_pred > 0)] = 1
+    
+    return y_pred
+
+
+## helpers for cross validation
 def split_train_test(y, x, proportion):
     """
     Splits the train test for cross validation

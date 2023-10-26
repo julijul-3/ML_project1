@@ -20,8 +20,10 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     grad, e = hp.compute_gradient(y, tx, w)
     for n_iter in range(max_iters):
         w = w - gamma * grad
-        grad, e = hp.compute_gradient(y, tx, w)
         loss = hp.compute_mse(e)
+        grad, e = hp.compute_gradient(y, tx, w)
+        print(loss)
+        print(grad)
         
     # store w and loss
     return w, loss
@@ -114,23 +116,17 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         w: last weight
         loss: corresponding loss value 
     """
-
-    loss = calculate_loss(y, tx, w)
-    gradient = calculate_gradient(y, tx, w)
-    hessian = calculate_hessian(y, tx, w)
-    return loss, gradient, hessian
     # compute inital step
     w = initial_w
-    loss = hp.calculate_loss(y, tx, w)
+    loss = hp.calculate_loss_logistic(y, tx, w)
 
     for iter in range(max_iters):
         # Update the weight vector using the gradient and the step size (gamma)
-        loss = hp.calculate_loss(y, tx, w)
-        grad = hp.calculate_gradient(y, tx, w)
+        loss = hp.calculate_loss_logistic(y, tx, w)
+        grad = hp.calculate_gradient_logistic(y, tx, w)
         w -= gamma * grad
 
     return w, np.array(loss)
-
 
 
 ### possiblement pas mettre dans la loss la penalite mais la mettre dans le gradient descent 
