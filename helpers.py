@@ -255,6 +255,8 @@ def replace_nan_and_exception_with_mean(data, exception_values):
     data[np.less(data, 0)] = mean_value
     data[np.isin(data, exception_values)] = mean_value
     
+    stds = np.std(data,axis=0)
+    data = (data-mean_value)/stds
     return data
 
 def replace_nan_and_exception_with_majority(data, exceptions):
