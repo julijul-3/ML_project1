@@ -113,7 +113,7 @@ def calculate_loss(y, tx, w):
  
     pred = sigmoid(tx.dot(w))
     #loss = -np.mean(y * np.log(pred) + (1 - y) * np.log(1 - pred)) 
-    loss = -np.sum(y * np.log(y_pred) + (1 - y) * np.log(1 - y_pred))
+    loss = -np.sum(y * np.log(pred) + (1 - y) * np.log(1 - pred))
     return loss
     # loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
     #return np.squeeze(-loss).item() * (1 / y.shape[0])
