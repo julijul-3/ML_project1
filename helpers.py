@@ -317,14 +317,23 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
 
 ## prediction of labels
 
-def predict_labels(weights, data):
+def predict_labels_mse(weights, data):
     """Generates class predictions given weights, and a test data matrix"""
     y_pred = np.dot(data, weights)
-    print((y_pred))
+
     y_pred[np.where(y_pred <= 0)] = -1
     y_pred[np.where(y_pred > 0)] = 1
     
     return y_pred
+
+def predict_labels_logistic(weights, data):
+    """Generates class predictions for logistic weights"""
+    z = np.dot(data, weights)
+    probabilities = sigmoid(z)
+    y_pred = np.copy(probabilities)
+
+    y_pred[np.where(probabilities <= 0.5)] = -1
+    y_pred[np.where(probabilities > 0.5)] = 1
 
 
 ## helpers for cross validation
