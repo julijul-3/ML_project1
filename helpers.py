@@ -331,9 +331,10 @@ def predict_labels_logistic(weights, data):
     z = np.dot(data, weights)
     probabilities = sigmoid(z)
     y_pred = np.copy(probabilities)
-
+    print(y_pred)
     y_pred[np.where(probabilities <= 0.5)] = -1
     y_pred[np.where(probabilities > 0.5)] = 1
+    return y_pred
 
 
 ## helpers for cross validation
