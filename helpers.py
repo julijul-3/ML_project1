@@ -257,6 +257,8 @@ def replace_nan_and_exception_with_mean(data, exception_values):
     
     stds = np.std(data,axis=0)
     data = (data-mean_value)/stds
+
+    
     return data
 
 def replace_nan_and_exception_with_majority(data, exceptions):
@@ -320,7 +322,7 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
 def predict_labels_mse(weights, data):
     """Generates class predictions given weights, and a test data matrix"""
     y_pred = np.dot(data, weights)
-
+    print("y pred : '{}'.".format(y_pred))
     y_pred[np.where(y_pred <= 0)] = -1
     y_pred[np.where(y_pred > 0)] = 1
     
@@ -331,7 +333,7 @@ def predict_labels_logistic(weights, data):
     z = np.dot(data, weights)
     probabilities = sigmoid(z)
     y_pred = np.copy(probabilities)
-    print(y_pred)
+    print("y pred : '{}'.".format(y_pred))
     y_pred[np.where(probabilities <= 0.5)] = -1
     y_pred[np.where(probabilities > 0.5)] = 1
     return y_pred
@@ -388,6 +390,9 @@ def measure_f1_score(y, y_pred):
     Float: f1 score
     """
     true_pos = sum(a==b and b==1 for a,b in zip(y,y_pred))
+   # print("True pos : '{}'.".format(true_pos))
     false_neg = sum(a!=b and b==-1 for a,b in zip(y,y_pred))
+   # print("False neg : '{}'.".format(false_neg))
     false_pos = sum(a!=b and b==1 for a,b in zip(y,y_pred))
+    #print("False pos : '{}'.".format(false_pos))
     return (true_pos/(true_pos+1/2 * (false_neg+false_pos)))
