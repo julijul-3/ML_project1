@@ -6,7 +6,7 @@ from implementations import *
 Training and testing our model on the Behavioral Risk Factor Surveillance
  System dataset in order to predict heart attacks
 
- Authors: Julie Favre, Louis Duval, Mathieu 
+ Authors: Julie Favre, Louis Duval, Mathieu Ferrey
 """
 
 ### LOAD DATA
@@ -53,16 +53,17 @@ cleaned_x_train = clean_data(labels, label_list, x_train)
 cleaned_x_test = clean_data(labels, label_list, x_test)
 
 ### CHOOSE HYPERPARAMETERS
-lambda_ = 0.0001
-degree = 25
+lambda_ = 0.0000001
+degree = 9
 
 
 ### TRAIN
-poly = build_poly(cleaned_x_train,degree)
-w , loss = ridge_regression(y_train,poly,lambda_)
+poly_train = build_poly(cleaned_x_train,degree)
+w , loss = ridge_regression(y_train,poly_train,lambda_)
 
 ### PREDICT LABELS
-yp = predict_labels_mse(w,cleaned_x_test)
+poly_test = build_poly(cleaned_x_test, degree)
+yp = predict_labels_mse(w,poly_test)
 
 ### WRITE OUTPUTS
-create_csv_submission(test_ids,yp,"outputs/ridge_degre25_200features.csv")
+create_csv_submission(test_ids,yp,"outputs/ridge_degre9_1e-7.csv")

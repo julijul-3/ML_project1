@@ -102,7 +102,6 @@ def ridge_regression(y, tx, lambda_):
 
 ### LOGISTIC REG ###
 
-### Check le texte en vert 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """Logistic regression using gradient descent or SGD (y ∈ {0, 1})
     Args: 
@@ -129,7 +128,6 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     return w, np.array(loss)
 
 
-### possiblement pas mettre dans la loss la penalite mais la mettre dans le gradient descent 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using gradient descent or SGD (y ∈ {0, 1}, with regularization term λ∥w∥^2)
     Args: 
@@ -141,23 +139,6 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     Returns:
         w: last weight
         loss: corresponding loss value without penalty term
-    
-    # init parameters
-    threshold = 1e-8
-    w = initial_w
-    loss, gradient, w = hp.gradient_descent_step(y, tx, w, gamma, lambda_, mode='logistic')
-
-    # start the logistic linear
-    for iteration in range(max_iters):
-        previous_loss = loss
-        # get loss and update w.
-        loss, gradient, w = hp.gradient_descent_step(y, tx, w, gamma, lambda_, mode='logistic')
-        
-        # converge criterion
-        if iteration > 1 and np.abs(loss - previous_loss) < threshold:
-            break
-
-    return w, loss
     """
     w = initial_w
     loss = hp.calculate_loss_logistic(y, tx, w) #+ lambda_*np.sum(w**2)
