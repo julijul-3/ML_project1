@@ -5,10 +5,16 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-### Compute 
+### Compute loss and grad for mse
 
 def compute_mse(e):
-    """Calculates mse for vector e"""
+    """Calculates mse for vector e
+    Args: 
+    e: (vector)
+
+    Returns:
+    Mean square error for that vector (float)
+    """
 
     return 1/2*np.mean(e**2)
 
@@ -59,6 +65,7 @@ def compute_stoch_gradient(y, tx, w):
     grad = -tx.T.dot(e) / len(e)
     return grad, e
 
+### helper for handling batches
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
     Generate a minibatch iterator for a dataset.
@@ -68,6 +75,12 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     Example of use :
     for minibatch_y, minibatch_tx in batch_iter(y, tx, 32):
         <DO-SOMETHING>
+    Args:
+        y: numpy array with the label values
+        tx: numpy array with the features
+        batch_size: int 
+        num_batches: int, default 1
+        shuffle: Bool, default True
     """
     data_size = len(y)
 
@@ -84,6 +97,8 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
+
+### Compute loss and grad for logistic regression
 def sigmoid(t):
     """apply sigmoid function on t.
 
@@ -149,7 +164,7 @@ def calculate_hessian(y, tx, w):
     r = np.multiply(pred, (1 - pred))
     return tx.T.dot(r).dot(tx) * (1 / y.shape[0])
 
-### fonction du cours
+### Helpers for ridge regression
 def build_poly(x, degree):
 
     """polynomial basis functions for input data x, for j=0 up to j=degree.
@@ -171,7 +186,7 @@ def build_poly(x, degree):
         poly = np.c_[poly, np.power(x, deg)]
     return poly
 
-### Load CSV
+### Load and write CSV
 
 def load_csv_data(data_path, sub_sample=False):
     """
@@ -216,8 +231,6 @@ def load_csv_data(data_path, sub_sample=False):
 
     return x_train, x_test, y_train, train_ids, test_ids
 
-### Create CSV
-
 def create_csv_submission(ids, y_pred, name):
     """
     This function creates a csv file named 'name' in the format required for a submission in Kaggle or AIcrowd.
@@ -240,14 +253,21 @@ def create_csv_submission(ids, y_pred, name):
         for r1, r2 in zip(ids, y_pred):
             writer.writerow({"Id": int(r1), "Prediction": int(r2)})
 
-### Cleaning
+### Cleaning our data
 
 def replace_nan_and_exception_with_mean(data, exception_values):
+    """ 
+    Computes the mean of the feature and replace all nan, exception_values, and negative values with it
+    Normalizes the data
+    Args:
+    data: numpy array, data to be cleaned (one feature)
+    exception_values: numpy array, values to be replaced
+    Returns:
+    cleaned data, numpy array
+    """
     
-    # clean data for mean: filter all exceptions and negatives
+    #filter all exceptions and negatives and find mean
     cleaned_data = data[~np.isin(data, exception_values) & (data > 0)]
-
-    # Calculate the mean of non-nan values
     mean_value = np.nanmean(cleaned_data)
 
     # Replace bad values with the mean
@@ -255,34 +275,43 @@ def replace_nan_and_exception_with_mean(data, exception_values):
     data[np.less(data, 0)] = mean_value
     data[np.isin(data, exception_values)] = mean_value
     
+    # normalise
     stds = np.std(data,axis=0)
     data = (data-mean_value)/stds
 
-    
     return data
 
 def replace_nan_and_exception_with_majority(data, exceptions):
+    """
+    Finds the value that is the most frequent and replaces the nan, negative, and exception values with it
+    Args:
+    data: numpy array, one feature to be cleaned
+    exceptions: numpy array, values to be replaced
+    Returns: cleaned data, numpy array
+    """
 
-    # Exclude negative , exception values and NaN values when counting occurrences
+    # Exclude negative, exception values and nan values when counting occurrences
     valid_values = data[~np.isnan(data) & ~np.isin(data, exceptions) & (data >= 0)]
     value_counts = np.bincount(valid_values.astype(int))
 
-    # Find the majority value
     majority_value = np.argmax(value_counts)
 
-    # Replace exception & NaN with the majority value
+    # Replace exception and nan and negatives with the majority value
     data[np.isnan(data)] = majority_value
     data[np.less(data, 0)] = majority_value
     data[np.isin(data, exceptions)] = majority_value
 
     return data
 
-def data_clean(inputs):
+def replace_exceptions(inputs):
     """
+    Unpacks inputs and call the correct clean method depending on the type
+    Args:
     inputs = (data, exceptions, with_majority)
     data:  data to clean
     exceptions:  values to remplace
     with_majority : (Bool) if True, remplace with majority, if false, remplace with mean
+    Returns: cleaned data, numpy array
     """
 
     data, exceptions, with_majority = inputs
@@ -301,6 +330,8 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
         all_labels_list: (numpy array) every labels of the dataset, in order to find indices
         labels_to_keep: (str, numpy array 1x.., Bool) name of label, array of exception values, use_majority
         dataset_to_clean: (array NxD)
+    Returns:
+        the cleaned dataset
     """
     tab_train = []
 
@@ -312,15 +343,22 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
         data = dataset_to_clean[:, id]
     
         #clean up
-        data_cleaned = data_clean((data, exceptions, use_maj))
+        data_cleaned = replace_exceptions((data, exceptions, use_maj))
         tab_train.append(data_cleaned)
 
     return np.array(tab_train).T
 
-## prediction of labels
+### prediction of labels
 
 def predict_labels_mse(weights, data):
-    """Generates class predictions given weights, and a test data matrix"""
+    """Generates class predictions given weights, and a test data matrix
+    Predicts -1/1 and separates at threshold 0
+    Args: 
+        weights: numpy array (N,D) weights of trained model
+        data: numpy array (D, ) cleaned test data
+    Returns: 
+        y_pred: numpy array of predictions -1/1
+    """
     y_pred = np.dot(data, weights)
     print("y pred : '{}'.".format(y_pred))
     y_pred[np.where(y_pred <= 0)] = -1
@@ -329,7 +367,14 @@ def predict_labels_mse(weights, data):
     return y_pred
 
 def predict_labels_logistic(weights, data):
-    """Generates class predictions for logistic weights"""
+    """Generates class predictions for logistic weights
+    Computes probabilities and separates at threshold 0.5
+    Args:
+        weights: numpy array (N, D) weights from trained model
+        data: numpy array (D, ) cleaned test dataset
+    Returns: 
+        y_pred: numpy array, predictions of labels, -1/1
+    """
     z = np.dot(data, weights)
     probabilities = sigmoid(z)
     y_pred = np.copy(probabilities)
@@ -338,13 +383,13 @@ def predict_labels_logistic(weights, data):
     y_pred[np.where(probabilities > 0.5)] = 1
     return y_pred
 
-
 ## helpers for cross validation
+
 def split_train_test(y, x, proportion):
     """
     Splits the train test for cross validation
 
-    Parameters:
+    Args:
     y (array-like): the labels
     x (array-like): the data points
     proportion (float): percentage of data used for train (between 0-1)
@@ -369,7 +414,7 @@ def measure_accuracy(y, y_pred):
     """
     Measures the accuracy of a given prediction
 
-    Parameters:
+    Args:
     y (array-like): the labels 
     y_pred (array-like): the predictions
 
@@ -382,7 +427,7 @@ def measure_f1_score(y, y_pred):
     """
     Measures the f1 score of a given prediction
 
-    Parameters:
+    Args:
     y (array-like): the labels 
     y_pred (array-like): the predictions
 
