@@ -137,33 +137,17 @@ def calculate_gradient_logistic(y, tx, w):
         tx: array (N,D), D is the number of features, data points.
         w: array of floats, weight value
     Returns:
-        grad: a vector of shape (D, 1)
+        grad: a vector of shape (D, 1), the gradient
 
     """
     pred = sigmoid(tx.dot(w))
     grad = tx.T.dot(pred - y) * (1 / y.shape[0])
     return grad
 
-def calculate_hessian(y, tx, w):
-    """return the Hessian of the loss function.
-
-    Args:
-        y:  shape=(N, 1)
-        tx: shape=(N, D)
-        w:  shape=(D, 1)
-    Returns:
-        a hessian matrix of shape=(D, D)
-    """
-
-    pred = sigmoid(tx.dot(w))
-    pred = np.diag(pred.T[0])
-    r = np.multiply(pred, (1 - pred))
-    return tx.T.dot(r).dot(tx) * (1 / y.shape[0])
-
 ### Helpers for ridge regression
 def build_poly(x, degree):
-
     """polynomial basis functions for input data x, for j=0 up to j=degree.
+    Creates a polynomial version of the data x, of degree degree
 
     Args:
         x: numpy array of shape (N,), N is the number of samples.
@@ -171,12 +155,7 @@ def build_poly(x, degree):
 
     Returns:
         poly: numpy array of shape (N,d+1)
-
-    >>> build_poly(np.array([0.0, 1.5]), 2)
-    array([[1.  , 0.  , 0.  ],
-           [1.  , 1.5 , 2.25]])
     """
-
     poly = np.ones((len(x), 1))
     for deg in range(1, degree+1):
         poly = np.c_[poly, np.power(x, deg)]
@@ -300,7 +279,16 @@ def replace_nan_and_exception_with_majority(data, exceptions):
     return data
 
 def replace_value(value, data):
-    data = np.where(data == value, 0, data)
+    """
+    Replaces the value 'value' by zero in the data
+    Args:
+        value: int, value to replace
+        data: numpy array size (1, N) 
+    Returns: 
+        the dataset with corrections
+    """
+    cleaned_data = np.where(data == value, 0, data)
+    return cleaned_data
 
 def replace_exceptions(inputs):
 
@@ -344,7 +332,7 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
         data = dataset_to_clean[:, id]
 
         if (replaced!=None):
-            replace_value(replaced, data)
+            data = replace_value(replaced, data)
     
         #clean up
         data_cleaned = replace_exceptions((data, exceptions, use_maj))
