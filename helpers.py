@@ -5,67 +5,66 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-### Compute loss and grad for mse
-
 def compute_mse(e):
-    """Calculates mse for vector e
+    """Calculates mean squared error for vector e
     Args: 
-    e: (vector)
-
+        e: array of floats, error
     Returns:
-    Mean square error for that vector (float)
+        Mean square error for that vector (float)
     """
 
     return 1/2*np.mean(e**2)
 
 def compute_gradient(y, tx, w):
-
     """Computes the gradient at w.
 
     Args:
-    y: numpy array of shape=(N, )
-    tx: numpy array of shape=(N,2)
-    w: numpy array of shape=(2, ). The vector of model parameters.
+        y: array (N,), N is the number of samples, prediction labels.
+        tx: array (N,D), D is the number of features, data points.
+        w: array of floats, weight value
 
     Returns:
-    An numpy array of shape (2, ) (same shape as w), containing the gradient of the loss at w.
+        grad: array of floats (), gradient of the error at w.
+        e : array of floats (), error at w
     """
     e = y - tx.dot(w)
     grad = -tx.T.dot(e) / len(e)
+
     return grad, e
 
 def compute_loss(y, tx, w):
-    """Calculate the loss using either MSE.
+    """Calculate the loss using MSE.
 
     Args:
-        y: numpy array of shape=(N, )
-        tx: numpy array of shape=(N,2)
-        w: numpy array of shape=(2,). The vector of model parameters.
+        y: array (N,), N is the number of samples, prediction labels.
+        tx: array (N,D), D is the number of features, data points.
+        w: array of floats, weight value
 
     Returns:
-        the value of the loss (a scalar), corresponding to the input parameters w.
+        the value of the loss (a float), corresponding to w.
     """
     e = y - tx.dot(w)
+
     return compute_mse(e)
 
 def compute_stoch_gradient(y, tx, w):
-    
-    """Compute a stochastic gradient at w from a data sample batch of size B, where B < N, and their corresponding labels.
+    """Compute a stochastic gradient at w
 
     Args:
-    y: numpy array of shape=(B, )
-    tx: numpy array of shape=(B,2)
-    w: numpy array of shape=(2, ). The vector of model parameters.
+        y: array (N,), N is the number of samples, prediction labels.
+        tx: array (N,D), D is the number of features, data points.
+        w: array of floats, weight value
 
     Returns:
-    A numpy array of shape (2, ) (same shape as w), containing the stochastic gradient of the loss at w.
-
+        grad: array of floats (), gradient of the error at w.
+        e : array of floats (), error at w
     """
     e = y - tx.dot(w)
     grad = -tx.T.dot(e) / len(e)
+
     return grad, e
 
-### helper for handling batches
+#  Function taken from Ex02
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
     Generate a minibatch iterator for a dataset.
@@ -97,51 +96,48 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
 
-
-### Compute loss and grad for logistic regression
 def sigmoid(t):
     """apply sigmoid function on t.
 
     Args:
-        t: scalar or numpy array
+        t: scalar or array
     Returns:
-        scalar or numpy array
+        scalar or array
 
     """
+
     return 1.0 / (1 + np.exp(-t))
    
 
   ### Loss for Logistic  : Sigmoïd 
 
 def calculate_loss_logistic(y, tx, w):
-    """compute the cost by negative log likelihood.
+    """ Loss by negative log likelihood.
 
     Args:
-        y:  shape=(N, 1)
-        tx: shape=(N, D)
-        w:  shape=(D, 1)
+        y: array (N,), N is the number of samples, prediction labels.
+        tx: array (N,D), D is the number of features, data points.
+        w: array of floats, weight value
     Returns:
-        a non-negative loss
+        loss: float, a non-negative loss corresponding to w
     """
     assert y.shape[0] == tx.shape[0]
     assert tx.shape[1] == w.shape[0]
  
     pred = sigmoid(tx.dot(w))
     loss = -np.mean(y * np.log(pred) + (1 - y) * np.log(1 - pred)) 
-    #loss = -np.sum(y * np.log(pred) + (1 - y) * np.log(1 - pred))
+    
     return loss
-    # loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
-    #return np.squeeze(-loss).item() * (1 / y.shape[0])
     
 def calculate_gradient_logistic(y, tx, w):
-    """compute the gradient of loss.
+    """ Gradient for logistic regression.
 
     Args:
-        y:  shape=(N, 1)
-        tx: shape=(N, D)
-        w:  shape=(D, 1)
+        y: array (N,), N is the number of samples, prediction labels.
+        tx: array (N,D), D is the number of features, data points.
+        w: array of floats, weight value
     Returns:
-        a vector of shape (D, 1)
+        grad: a vector of shape (D, 1)
 
     """
     pred = sigmoid(tx.dot(w))
