@@ -34,7 +34,7 @@ label_list = [("MSCODE", [], True, None),
             ("PA1MIN_",[], False, None),
             ("GENHLTH",[7,9], False, None),
             ("CHECKUP1",[7,9], False, None),
-            ("MENTHLTH",[77, 99], False, 88), #88 -> 0 
+            ("MENTHLTH",[77, 99], False, 88), 
             ("BPHIGH4",[7,9], True, None),
             ("BPMEDS",[7,9], True, None),
             ("TOLDHI2",[7,9], True, None),
@@ -78,29 +78,64 @@ label_list = [("MSCODE", [], True, None),
             ("SMOKDAY2", [7,9], True, None),
             ("STOPSMK2", [7,9], True, None),
             ("USENOW3", [7,9], True, None), 
-            ("DRNK3GE5", [77,99],False, 88)  ## 88 -> 0 
+            ("DRNK3GE5", [77,99],False, 88),
+            ("MAXDRNKS", [77,99], False, None),
+            ("LMTJOIN3", [7,9], True, None),
+            ("ARTHDIS2", [7,9], True, None),
+            ("ARTHSOCL", [7,9], True,None),
+            ("FLUSHOT6", [7,9],True, None),
+            ("PNEUVAC3", [7,9], True, None),
+            ("PDIABTST", [7,9], True,None),
+            ("_RFHLTH", [9], True, None),
+            ("_CHOLCHK", [9], True, None),
+            ("_LTASTH1", [9], True,None),
+            ("_CASTHM1", [9], True, None),
+            ("_DRDXAR1", [], True, None),
+            ("WTKG3", [99999], False , None),
+            ("_RFBMI5", [9], True, None),
+            ("_RFSMOK3", [9], True , None),
+            ("DRNKANY5", [7,9], True, None),
+            ("DROCDY3_", [900], False,None),
+            ("_RFBING5", [9], True, None),
+            ("FTJUDA1_", [], False, None),
+            ("FRUTDA1_", [], False, None),
+            ("BEANDAY_", [], False, None),
+            ("GRENDAY_",[], False,None),
+            ("ORNGDAY_", [],False, None),
+            ("VEGEDA1_", [], False, None),
             ]
-
 
 ### CLEAN DATASETS
 cleaned_x_train = clean_data(labels, label_list, x_train)
 cleaned_x_test = clean_data(labels, label_list, x_test)
 
-### CHOOSE HYPERPARAMETERS
-lambda_ = 0.1
-degree = 15
+### ADD INTERCEPT
+# Adding Intercept
+n_rows_test = cleaned_x_test.shape[0]
+n_rows_test = cleaned_x_train.shape[0]
 
+ones_cl_test = np.ones((n_rows_test, 1), dtype=int)
+ones_cl_train = np.ones((n_rows_test, 1), dtype=int)
+
+
+cleaned_x_test_1 = np.concatenate((ones_cl_test, cleaned_x_test), axis=1)
+cleaned_x_train_1 = np.concatenate((ones_cl_train, cleaned_x_train), axis=1)
+
+
+### CHOOSE HYPERPARAMETERS
+lambda_ = 0.0556
+degree = 16
 
 ### TRAIN
-poly_train = build_poly(cleaned_x_train,degree)
+poly_train = build_poly(cleaned_x_train_1,degree)
 w , loss = ridge_regression(y_train,poly_train,lambda_)
 
 ### PREDICT LABELS
-poly_test = build_poly(cleaned_x_test, degree)
+poly_test = build_poly(cleaned_x_test_1, degree)
 yp = predict_labels_mse(w,poly_test)
 
 ### WRITE OUTPUTS
-path = "outputs/ridge_degre15_lambda1e-1.csv"
+path = "outputs/ridge_degre16_lambda0556_intercept.csv"
 create_csv_submission(test_ids,yp,path)
 print("The output csv file is at:")
 print(path)
