@@ -299,7 +299,11 @@ def replace_nan_and_exception_with_majority(data, exceptions):
 
     return data
 
+def replace_value(value, data):
+    data = np.where(data == value, 0, data)
+
 def replace_exceptions(inputs):
+
     """
     Unpacks inputs and call the correct clean method depending on the type
     Args:
@@ -319,6 +323,7 @@ def replace_exceptions(inputs):
 
     return data
 
+
 def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
     """
     Function to clean up the dataset while keeping only the wanted features
@@ -332,11 +337,14 @@ def clean_data(all_labels_list, labels_to_keep, dataset_to_clean):
     tab_train = []
 
     for input in labels_to_keep:
-        label, exceptions, use_maj = input
+        label, exceptions, use_maj, replaced = input
         # find index of label
         id = np.where(all_labels_list == label)[0][0]
         # find data of this index
         data = dataset_to_clean[:, id]
+
+        if (replaced!=None):
+            replace_value(replaced, data)
     
         #clean up
         data_cleaned = replace_exceptions((data, exceptions, use_maj))
